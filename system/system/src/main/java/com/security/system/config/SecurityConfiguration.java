@@ -29,14 +29,20 @@ public class SecurityConfiguration {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
+    private static final List<String> SECURED_ADMIN_URLS = List.of("/users/admin/**");
+
+    private static final List<String> SECURED_USER_URLS = List.of("/users/user/**");
+
+    private static final List<String> PUBLIC_URLS = List.of("/auth/**");
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/users/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(SECURED_ADMIN_URLS.toArray(String[]::new)).hasRole("ADMIN")
+                        .requestMatchers(SECURED_USER_URLS.toArray(String[]::new)).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
